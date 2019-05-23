@@ -27,7 +27,7 @@ namespace Ltwlf.Xrm.Workflow
         public InArgument<string> Body { get; set; }
 
         [Input("Header")]
-        [Default("Content-Type:application/json")]
+        [Default("")]
         public InArgument<string> Header { get; set; }
 
         [Output("Response Body")]
@@ -46,7 +46,6 @@ namespace Ltwlf.Xrm.Workflow
             var body = Body.Get(context);
 
             var http = new HttpClient();
-
             
             if (!string.IsNullOrEmpty(header))
             {
@@ -57,12 +56,12 @@ namespace Ltwlf.Xrm.Workflow
                     http.DefaultRequestHeaders.TryAddWithoutValidation(split[0].Trim(), split[1].Trim());
                 });     
 
-                if(method.ToLower()=="post")
-                {
-                    var result = http.PostAsync(url, new StringContent(body)).Result;
-                    ResponseBody.Set(context, result.Content.ReadAsStringAsync().Result);          
-                }
+            }
 
+            if (method.ToLower() == "post")
+            {
+                var result = http.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json")).Result;
+                ResponseBody.Set(context, result.Content.ReadAsStringAsync().Result);
             }
         }
     }
